@@ -1,10 +1,15 @@
 var tela = document.querySelector("canvas");
 var pincel = tela.getContext('2d');
+var nopeSound = new Audio('nope.mp3')
+var bgSound = new Audio('bg.mp3');
+var overSound = new Audio('gameOver.mp3');
 
 pincel.fillStyle = "gray";
 pincel.fillRect(0, 0, tela.width, tela.height);
 var paraDireita = true
 var baixo = true
+var gameOver = false;
+
 
 var bolinha =
 {
@@ -13,6 +18,7 @@ var bolinha =
 }
 
 var player1 = {
+    name: "Player 1",
     dirX: 10,
     dirY: 360,
     pontos: 0
@@ -20,6 +26,7 @@ var player1 = {
 
 
 var player2 = {
+    name: "Player 2",
     dirX: 1190,
     dirY: 360,
     pontos: 0
@@ -57,10 +64,13 @@ function desenhar()
 
 function Main()
 {
-    limpaTela();
-    movimentoBolinha();
-    InputPlayer();
-    desenhar();
+    if(!gameOver)
+    {
+        limpaTela();
+        movimentoBolinha();
+        InputPlayer();
+        desenhar();
+    }
 }
 
 function limpaTela()
@@ -90,10 +100,12 @@ function movimentoBolinha()
 
     if(bolinha.dirX == player1.dirX && (bolinha.dirY <= player1.dirY+110 && bolinha.dirY >= player1.dirY-110))
     {
+        nopeSound.play();
         paraDireita = true;
     }
     if(bolinha.dirX == player2.dirX && (bolinha.dirY <= player2.dirY+110 && bolinha.dirY >= player2.dirY-110))
     {
+        nopeSound.play();
         paraDireita = false;
     }
 
@@ -117,8 +129,15 @@ function movimentoBolinha()
 function ponto(player)
 {
     player.pontos++;
-    bolinha.dirX = 600;
-    bolinha.dirY = Math.floor(Math.random() * 710) + 10;;
+    if(player.pontos >= 3)
+    {
+        fimJogo(player)
+    }
+    else
+    {
+        bolinha.dirX = 600;
+        bolinha.dirY = Math.floor(Math.random() * 710) + 10;;
+    }
 }
 
 
@@ -151,7 +170,25 @@ function movimentoPlayer(player, key)
     }
 }
 
+function fimJogo(player)
+{
+    gameOver = true;
+    bgSound.pause();
+    overSound.play();
+    limpaTela();
+    pincel.fillStyle = "white";
+    pincel.fillRect(0, 0, tela.width, tela.height);
+
+    pincel.font = "30px Arial";
+    pincel.fillStyle = "black";
+    pincel.textAlign = "center";
+    pincel.fillText("Player 1: " + player1.pontos + "   " + "Player 2: " + player2.pontos, tela.width/2, 100);
+
+    pincel.fillText(player.name + " é o ganhador!!!", tela.width/2, tela.height/2)
+}
+
 setInterval(Main, 10);
 paraDireita = true;
 desenhar();
+bgSound.play();
 Main();
